@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<title>Search User </title>
+<link type="text/css" rel="stylesheet" href="assets/css/lightslider.css" />  
+<style>
+	.search-box{width:500px; margin: 30px auto;}
+	.searchFld{width:70%; display: inline; height: 30px;}
+	.searchBtn{width:20%; display: inline; height: 30px;}
+	.search-users{width:80%; margin: 30px auto;}
+	.searchResult {height: 300px;}
+	.searchResult li {
+	   background-color: #add8e6;
+	    height: 300px;
+	    padding: 20px;
+	    text-align: center;
+	}
+	.searchResult li h3 a {
+	    color: #000;
+	    text-decoration: none;
+	}
+</style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>                
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="assets/js/lightslider.js"></script>
+
+<body>
+
+<div ng-app = "loadUser" ng-controller = "userController" class="search-users">
+
+		<div class="search-box">
+		   <input type="text" ng-model="searchTxt" class="searchFld" placeholder="Search..."> <button type="button" class="searchBtn"  ng-click="search()">Search</button>
+		</div>
+		<ul id="slider" class="searchResult" ng-show="searchResult">
+		    <li ng-repeat="user in users" class="user-listing">		        
+		        <a href="{{user.url}}" target="_blank"><img src="{{user.image}}" width="200" height="200"/></a>
+		        <h3><a href="{{user.url}}" target="_blank">{{user.title}}</a></h3>
+		    </li>
+		</ul>
+</div> 
+<script>
+	//Code for search start
+	var app = angular.module("loadUser", []);
+	app.controller("userController", function($scope,$http) {
+		
+		$scope.search=function(){
+	        $scope.searchQuery = angular.copy($scope.searchTxt);
+	        console.log($scope.searchQuery);
+			var url = "https://www.googleapis.com/customsearch/v1?key=AIzaSyCpuXhwKUDC-BLJHhBzB9O_- hF6A_NnSyY&cx=001644391064639580624:tuba7xzcppy&q="+ $scope.searchQuery;		    
+			var formatJson = []; // Used to save formatted json
+		    $http.get(url).then( function(response) {
+		    	//console.log(response);
+		    	//Formatting json object as per html view
+		    	angular.forEach(response.data.items, function(value, key) {
+		    		//console.log(value.pagemap.cse_image);
+		    		var newObj = {};
+		    		newObj["title"] = value.title;
+		    		newObj["url"] = value.link;
+		    		newObj["image"] = value.pagemap.cse_image != undefined ? value.pagemap.cse_image[0].src : '';
+				  	formatJson.push(newObj);
+				} );
+				//console.log(formatJson);
+		    	
+		       $scope.users = formatJson; // send data to user
+		       $scope.searchResult = true; // make searchResult ul vidisble 
+		       // jquery plugin lightSlider called for making carousel
+		       $("#slider").lightSlider(); 
+	
+		    
+		    });
+	    }
+ 	});
+ 	//Code for search end
+</script>
+      
+
+</script>
+</body>
+</html>
